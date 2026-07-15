@@ -64,9 +64,8 @@ struct Task
 inline Task* createTask()
 {
     // NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
-    auto* newTask = new Task{
-        -1, -1, -1, false, nullptr, OperationStatus::NOT_STATE,
-    };
+    auto* newTask =
+        new Task{-1, -1, -1, false, nullptr, OperationStatus::NOT_STATE, ""};
     return newTask;
 }
 
