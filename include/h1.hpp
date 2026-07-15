@@ -1,94 +1,4 @@
-#include <cfloat>
-#include <cstdint>
-
-using MathDefault_t = double;
-
-enum class OperationEnum : uint8_t
-{
-    ADDITION = 1,
-    SUBTRACTION = 2,
-    MULTIPLICATION = 3,
-    DIVISION = 4,
-    FACTORIAL = 5,
-    POWER = 6,
-};
-
-enum class OperationStatus : uint16_t
-{
-    NOT_STATE = 0,
-    READY = 100,
-    HELP_SHOWN = 150,
-    OK = 200,
-    ERROR = 500,
-    ERROR_PARSE_VALUES = 505,
-    ERROR_UNKNOWN_OPERATION = 510,
-    ERROR_OVERFLOW = 520
-};
-
-inline bool isOverflowResult(MathDefault_t value)
-{
-    // Если value = NaN, то NaN != NaN
-    if (value != value)
-    {
-        return true;
-    }
-    return (value > DBL_MAX) || (value < -DBL_MAX);
-}
-
-inline const char* operationStatusToString(OperationStatus operation)
-{
-    switch (operation)
-    {
-        case OperationStatus::NOT_STATE:
-            return "NOT_STATE";
-        case OperationStatus::READY:
-            return "READY";
-        case OperationStatus::HELP_SHOWN:
-            return "HELP_SHOWN";
-        case OperationStatus::OK:
-            return "OK";
-        case OperationStatus::ERROR:
-            return "ERROR";
-        case OperationStatus::ERROR_PARSE_VALUES:
-            return "ERROR_PARSE_VALUES";
-        case OperationStatus::ERROR_UNKNOWN_OPERATION:
-            return "ERROR_UNKNOWN_OPERATION";
-        default:
-            return "NOT_FOUND";
-    }
-}
-
-struct Task
-{
-    MathDefault_t* left;
-    MathDefault_t* right;
-    MathDefault_t* result;
-    OperationEnum* operation;
-    OperationStatus status;
-};
-
-inline Task* createTask()
-{
-    // NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
-    auto* newTask = new Task{
-        nullptr, nullptr, nullptr, nullptr, OperationStatus::NOT_STATE,
-    };
-    return newTask;
-}
-
-inline void deleteTask(Task* task)
-{
-    // NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
-    delete task->left;
-    // NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
-    delete task->right;
-    // NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
-    delete task->result;
-    // NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
-    delete task->operation;
-    // NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
-    delete task;
-}
+#include "task.hpp"
 
 namespace h1
 {
@@ -102,97 +12,116 @@ inline void makePower(struct Task* task);
 
 void h1::makeAddition(struct Task* task)
 {
-    *task->result = *task->left + *task->right;
-    if (isOverflowResult(*task->result))
+    auto result = task->left + task->right;
+
+    //Проверка на переполнение
+    if ((result - task->left) != task->right)
     {
-        task->status = OperationStatus::ERROR_OVERFLOW;
+        setError(task, "При сложении произошло переполнение базового типа",
+                 OperationStatus::ERROR_OVERFLOW);
         return;
     }
-    task->status = OperationStatus::OK;
+
+    setOk(task, result);
 }
 
 void h1::makeSubtraction(struct Task* task)
 {
-    *task->result = *task->left - *task->right;
-    if (isOverflowResult(*task->result))
+    auto result = task->left - task->right;
+    //Проверка на переполнение
+    if ((result + task->left) != task->right)
     {
-        task->status = OperationStatus::ERROR_OVERFLOW;
+        setError(task, "При вычитании произошло переполнение базового типа",
+                 OperationStatus::ERROR_OVERFLOW);
         return;
     }
-    task->status = OperationStatus::OK;
+
+    setOk(task, result);
 }
 
 void h1::makeMultiplication(struct Task* task)
 {
-    *task->result = *task->left * *task->right;
-    if (isOverflowResult(*task->result))
+    auto result = task->left * task->right;
+    //Проверка на переполнение
+    if ((result / task->left) != task->right)
     {
-        task->status = OperationStatus::ERROR_OVERFLOW;
+        setError(task, "При умножении произошло переполнение базового типа",
+                 OperationStatus::ERROR_OVERFLOW);
         return;
     }
-    task->status = OperationStatus::OK;
+    setOk(task, result);
 }
 
 void h1::makeDivision(struct Task* task)
 {
-    if (*task->right == 0)
+    if (task->right == 0)
     {
-        task->status = OperationStatus::ERROR;
+        setError(task, "Запрещено производить деление на 0");
         return;
     }
-    *task->result = *task->left / *task->right;
-    if (isOverflowResult(*task->result))
+    auto result = task->left / task->right;
+    //Проверка на переполнение
+    if ((result * task->right) != task->left)
     {
-        task->status = OperationStatus::ERROR_OVERFLOW;
+        setError(task, "При делении произошло переполнение базового типа",
+                 OperationStatus::ERROR_OVERFLOW);
         return;
     }
-    task->status = OperationStatus::OK;
+
+    setOk(task, result);
 }
 
 void h1::makeFactorial(struct Task* task)
 {
-    if (*task->left < 0)
+    if (task->left < 0)
     {
-        task->status = OperationStatus::ERROR;
+        setError(task, "Факториал не определен для отрицательных чисел");
         return;
     }
 
-    auto value = static_cast<int>(*task->left);
+    auto value = static_cast<int>(task->left);
     int result = 1;
     for (int i = 1; i <= value; ++i)
     {
-        result *= i;
-    }
-    *task->result = result;
+        MathDefault_t temp = result * i;
 
-    if (isOverflowResult(*task->result))
-    {
-        task->status = OperationStatus::ERROR_OVERFLOW;
-        return;
-    }
+        // Проверка на переполнение
+        if (i != 0 && temp / i != result)
+        {
+            setError(task,
+                     "При вычислении факториала произошло переполнение "
+                     "базового типа",
+                     OperationStatus::ERROR_OVERFLOW);
+            return;
+        }
 
-    task->status = OperationStatus::OK;
+        result = temp;
+    }
+    setOk(task, result);
 }
 
 void h1::makePower(struct Task* task)
 {
-    if (*task->right < 0)
+    if (task->right < 0)
     {
-        task->status = OperationStatus::ERROR;
+        setError(task, "Возведение в отрицательную степень не поддерживается");
         return;
     }
-    auto exp = static_cast<int>(*task->right);
-    MathDefault_t result = 1.0;
+    auto exp = static_cast<int>(task->right);
+    auto result = static_cast<MathDefault_t>(1.0);
     for (int i = 0; i < exp; ++i)
     {
-        result *= *task->left;
+        MathDefault_t temp = result * task->left;
+        // Проверка на переполнение
+        if (temp != 0 && temp / result != task->left)
+        {
+            setError(
+                task,
+                "При возведении в степень призошло переполнение базового типа",
+                OperationStatus::ERROR_OVERFLOW);
+            return;
+        }
     }
 
-    *task->result = result;
-    if (isOverflowResult(*task->result))
-    {
-        task->status = OperationStatus::ERROR_OVERFLOW;
-        return;
-    }
-    task->status = OperationStatus::OK;
+    setOk(task, result);
 }

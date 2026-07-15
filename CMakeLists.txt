@@ -26,6 +26,7 @@ add_library(${PROJECT_NAME} SHARED)
 target_sources(${PROJECT_NAME}
     PRIVATE
     "include/h1.hpp"
+    "include/task.hpp"
 )
 
 
