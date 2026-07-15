@@ -19,6 +19,7 @@ enum class OperationEnum : uint8_t
 enum class OperationStatus : uint16_t
 {
     NOT_STATE = 0,
+    READY = 100,
     OK = 200,
     ERROR = 500,
     ERROR_OVERFLOW = 520
