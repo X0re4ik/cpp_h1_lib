@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 #include <cfloat>
@@ -24,6 +25,28 @@ enum class OperationStatus : uint16_t
     ERROR = 500,
     ERROR_OVERFLOW = 520
 };
+
+inline const char* operationStatus2Str(OperationStatus status)
+{
+    switch (status)
+    {
+        case OperationStatus::NOT_STATE:
+            return "NOT_STATE";
+        case OperationStatus::READY:
+            return "READY";
+        case OperationStatus::OK:
+            return "OK";
+        case OperationStatus::ERROR:
+            return "ERROR";
+        case OperationStatus::ERROR_OVERFLOW:
+            return "ERROR_OVERFLOW";
+        default:
+            // NOLINTNEXTLINE (cppcoreguidelines-pro-type-vararg)
+            printf("Runtime Error: Unknown Operation");
+            // NOLINTNEXTLINE (concurrency-mt-unsafe)
+            exit(1);
+    }
+}
 
 struct Task
 {
