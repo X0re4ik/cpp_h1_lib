@@ -58,7 +58,7 @@ struct Task
     OperationEnum* operation;
     OperationStatus status;
     // NOLINTNEXTLINE (modernize-avoid-c-array)
-    char errorMessage[100];
+    char errorMessage[255];
 };
 
 inline Task* createTask()
