@@ -30,7 +30,7 @@ void h1::makeSubtraction(struct Task* task)
 {
     auto result = task->left - task->right;
     //Проверка на переполнение
-    if ((result + task->left) != task->right)
+    if ((result + task->right) != task->left)
     {
         setError(task, "При вычитании произошло переполнение базового типа",
                  OperationStatus::ERROR_OVERFLOW);
@@ -122,6 +122,7 @@ void h1::makePower(struct Task* task)
                 OperationStatus::ERROR_OVERFLOW);
             return;
         }
+        result = temp;
     }
 
     setOk(task, result);
