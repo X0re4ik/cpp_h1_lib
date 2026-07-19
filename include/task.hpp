@@ -1,10 +1,14 @@
-#pragma once
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#ifndef H_TASK1
+#define H_TASK1
 
 #include <cfloat>
 #include <cstdint>
+// NOLINTNEXTLINE (modernize-deprecated-headers)
+#include <stdio.h>
+// NOLINTNEXTLINE (modernize-deprecated-headers)
+#include <stdlib.h>
+// NOLINTNEXTLINE (modernize-deprecated-headers)
+#include <string.h>
 
 using MathDefault_t = int;
 
@@ -82,7 +86,7 @@ inline void deleteTask(Task* task)
 
 inline void setErrorMessage(Task* task, const char* errorMessage)
 {
-    // NOLINTNEXTLINE (cppcoreguidelines-pro-bounds-array-to-pointer-decay)
+    // NOLINTNEXTLINE (cppcoreguidelines-pro-bounds-array-to-pointer-decay, undeclared_var_use)
     strncpy(task->errorMessage, errorMessage, sizeof(task->errorMessage) - 1);
     task->errorMessage[sizeof(task->errorMessage) - 1] = '\0';
 }
@@ -101,3 +105,5 @@ inline void setOk(Task* task, MathDefault_t result)
     task->isValidResult = true;
     task->status = OperationStatus::OK;
 }
+
+#endif // H_TASK1

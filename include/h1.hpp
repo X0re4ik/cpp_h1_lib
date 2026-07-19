@@ -1,4 +1,5 @@
-#pragma once
+#ifndef H_H1
+#define H_H1
 #include "task.hpp"
 
 namespace h1
@@ -84,7 +85,7 @@ void h1::makeFactorial(struct Task* task)
     int result = 1;
     for (int i = 1; i <= value; ++i)
     {
-        MathDefault_t temp = result * i;
+        const MathDefault_t temp = result * i;
 
         // Проверка на переполнение
         if (i != 0 && temp / i != result)
@@ -112,7 +113,7 @@ void h1::makePower(struct Task* task)
     auto result = static_cast<MathDefault_t>(1.0);
     for (int i = 0; i < exp; ++i)
     {
-        MathDefault_t temp = result * task->left;
+        const MathDefault_t temp = result * task->left;
         // Проверка на переполнение
         if (temp != 0 && temp / result != task->left)
         {
@@ -127,3 +128,5 @@ void h1::makePower(struct Task* task)
 
     setOk(task, result);
 }
+
+#endif // H_H1
