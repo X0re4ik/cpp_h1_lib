@@ -11,6 +11,7 @@
 #include <string.h>
 
 using MathDefault_t = int;
+using MathResultDefault_t = double;
 
 enum class OperationEnum : uint8_t
 {
@@ -57,9 +58,9 @@ struct Task
 {
     MathDefault_t left;
     MathDefault_t right;
-    MathDefault_t result;
+    MathResultDefault_t result;
     bool isValidResult;
-    OperationEnum* operation;
+    OperationEnum operation;
     OperationStatus status;
     // NOLINTNEXTLINE (modernize-avoid-c-array)
     char errorMessage[255];
@@ -68,15 +69,14 @@ struct Task
 inline Task* createTask()
 {
     // NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
-    auto* newTask =
-        new Task{-1, -1, -1, false, nullptr, OperationStatus::NOT_STATE, ""};
+    auto* newTask = new Task{
+        -1, -1, -1, false, OperationEnum::ADDITION, OperationStatus::NOT_STATE,
+        ""};
     return newTask;
 }
 
 inline void deleteTask(Task* task)
 {
-    // NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
-    delete task->operation;
     // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-array-to-pointer-decay)
     memset(task->errorMessage, 0, sizeof(task->errorMessage));
 
@@ -99,7 +99,7 @@ inline void setError(Task* task, const char* errorMessage,
     task->isValidResult = false;
 }
 
-inline void setOk(Task* task, MathDefault_t result)
+inline void setOk(Task* task, MathResultDefault_t result)
 {
     task->result = result;
     task->isValidResult = true;

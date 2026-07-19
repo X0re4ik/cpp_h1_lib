@@ -2,6 +2,9 @@
 #define H_H1
 #include "task.hpp"
 
+// NOLINTNEXTLINE (modernize-deprecated-headers)
+#include <limits.h>
+
 namespace h1
 {
 inline void makeAddition(struct Task* task);
@@ -10,14 +13,19 @@ inline void makeMultiplication(struct Task* task);
 inline void makeDivision(struct Task* task);
 inline void makeFactorial(struct Task* task);
 inline void makePower(struct Task* task);
+
+inline MathDefault_t toFactorial(MathDefault_t value, MathDefault_t accumulator,
+                                 int& isOverflow);
+
 } // namespace h1
 
 void h1::makeAddition(struct Task* task)
 {
-    auto result = task->left + task->right;
 
-    //Проверка на переполнение
-    if ((result - task->left) != task->right)
+    MathDefault_t result = 0;
+
+    // Проверка на переполнение
+    if (__builtin_add_overflow(task->left, task->right, &result))
     {
         setError(task, "При сложении произошло переполнение базового типа",
                  OperationStatus::ERROR_OVERFLOW);
@@ -29,9 +37,10 @@ void h1::makeAddition(struct Task* task)
 
 void h1::makeSubtraction(struct Task* task)
 {
-    auto result = task->left - task->right;
-    //Проверка на переполнение
-    if ((result + task->right) != task->left)
+    MathDefault_t result = 0;
+
+    // Проверка на переполнение
+    if (__builtin_sub_overflow(task->left, task->right, &result))
     {
         setError(task, "При вычитании произошло переполнение базового типа",
                  OperationStatus::ERROR_OVERFLOW);
@@ -43,14 +52,15 @@ void h1::makeSubtraction(struct Task* task)
 
 void h1::makeMultiplication(struct Task* task)
 {
-    auto result = task->left * task->right;
-    //Проверка на переполнение
-    if ((result / task->left) != task->right)
+    MathDefault_t result = 0;
+    // Проверка на переполнение
+    if (__builtin_mul_overflow(task->left, task->right, &result))
     {
         setError(task, "При умножении произошло переполнение базового типа",
                  OperationStatus::ERROR_OVERFLOW);
         return;
     }
+
     setOk(task, result);
 }
 
@@ -61,16 +71,36 @@ void h1::makeDivision(struct Task* task)
         setError(task, "Запрещено производить деление на 0");
         return;
     }
-    auto result = task->left / task->right;
     //Проверка на переполнение
-    if ((result * task->right) != task->left)
+    if (task->left == INT_MIN && task->right == -1)
     {
         setError(task, "При делении произошло переполнение базового типа",
                  OperationStatus::ERROR_OVERFLOW);
         return;
     }
 
+    auto result = static_cast<MathResultDefault_t>(task->left) /
+                  static_cast<MathResultDefault_t>(task->right);
     setOk(task, result);
+}
+
+// NOLINTNEXTLINE (misc-no-recursion)
+inline MathDefault_t h1::toFactorial(MathDefault_t value,
+                                     MathDefault_t accumulator, int& isOverflow)
+{
+    if (value == 0)
+    {
+        return accumulator;
+    }
+
+    MathDefault_t temp = 0;
+    if (__builtin_mul_overflow(accumulator, value, &temp))
+    {
+        isOverflow = 1;
+        return -1;
+    }
+
+    return h1::toFactorial(value - 1, temp, isOverflow);
 }
 
 void h1::makeFactorial(struct Task* task)
@@ -82,22 +112,15 @@ void h1::makeFactorial(struct Task* task)
     }
 
     auto value = static_cast<int>(task->left);
-    int result = 1;
-    for (int i = 1; i <= value; ++i)
+    int isOverflow = 0;
+    auto result = toFactorial(value, 1, isOverflow);
+
+    if (isOverflow == 1)
     {
-        const MathDefault_t temp = result * i;
-
-        // Проверка на переполнение
-        if (i != 0 && temp / i != result)
-        {
-            setError(task,
-                     "При вычислении факториала произошло переполнение "
-                     "базового типа",
-                     OperationStatus::ERROR_OVERFLOW);
-            return;
-        }
-
-        result = temp;
+        setError(task,
+                 "При расчёте факториала произошло переполнение базового типа",
+                 OperationStatus::ERROR_OVERFLOW);
+        return;
     }
     setOk(task, result);
 }
@@ -109,17 +132,18 @@ void h1::makePower(struct Task* task)
         setError(task, "Возведение в отрицательную степень не поддерживается");
         return;
     }
+
     auto exp = static_cast<int>(task->right);
-    auto result = static_cast<MathDefault_t>(1.0);
+    auto result = 1;
     for (int i = 0; i < exp; ++i)
     {
-        const MathDefault_t temp = result * task->left;
+        MathDefault_t temp = 0;
         // Проверка на переполнение
-        if (temp != 0 && temp / result != task->left)
+        if (__builtin_mul_overflow(result, task->left, &temp))
         {
             setError(
                 task,
-                "При возведении в степень призошло переполнение базового типа",
+                "При возведении в степень произошло переполнение базового типа",
                 OperationStatus::ERROR_OVERFLOW);
             return;
         }
