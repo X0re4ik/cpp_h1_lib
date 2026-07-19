@@ -37,7 +37,7 @@ target_include_directories(${PROJECT_NAME}
 )
 
 
-if(USE_CLANG_FORMAT_CHECK)
+if(USE_CLANG_FORMAT_CHECK_H1)
     find_program(CLANG_FORMAT_PATH NAMES clang-format-21 REQUIRED)
     message(STATUS "${COLOR_GREEN}Found clang-format: ${CLANG_FORMAT_PATH}${COLOR_RESET}")
 
@@ -67,7 +67,7 @@ if(USE_CLANG_FORMAT_CHECK)
     add_dependencies(${PROJECT_NAME} clang-format)
 endif()
 
-if(USE_CLANG_FORMAT_FIX)
+if(USE_CLANG_FORMAT_FIX_H1)
     find_program(CLANG_FORMAT_PATH NAMES clang-format-21 REQUIRED)
     message(STATUS "${COLOR_GREEN}Found clang-format: ${CLANG_FORMAT_PATH}${COLOR_RESET}")
 
@@ -90,7 +90,7 @@ if(USE_CLANG_FORMAT_FIX)
 endif()
 
 # 
-if(USE_CLANG_TIDY)
+if(USE_CLANG_TIDY_H1)
     find_program(CLANG_TIDY_PATH NAMES clang-tidy-21 REQUIRED)
     file(GLOB_RECURSE CLANG_FORMAT_SRC CONFIGURE_DEPENDS
         include/*.h
