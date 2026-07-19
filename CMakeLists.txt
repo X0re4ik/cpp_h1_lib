@@ -21,7 +21,7 @@ else()
 endif()
 
 
-add_library(${PROJECT_NAME} SHARED)
+add_library(${PROJECT_NAME} INTERFACE)
 
 target_sources(${PROJECT_NAME}
     PRIVATE
@@ -31,22 +31,7 @@ target_sources(${PROJECT_NAME}
 
 
 target_include_directories(${PROJECT_NAME}
-    PUBLIC
-    # where top-level project will look for the library's public headers
+    INTERFACE
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-    # where external projects will look for the library's public headers
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
-)
-
-set_target_properties(${PROJECT_NAME} PROPERTIES LINKER_LANGUAGE CXX)
-
-
-include(GNUInstallDirs)
-
-install(TARGETS ${PROJECT_NAME}
-    EXPORT ${PROJECT_NAME}Targets
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-    INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
 )
