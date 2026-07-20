@@ -7,11 +7,52 @@
 
 namespace h1
 {
+/**
+ * @brief Выполнить суммирование
+ * 
+ * @param task - Задача struct Task* 
+ * @return int - {-1} - Ошибка переполнения; {-2} - Общая ошибка; {1} - Успешно расчитано
+ */
 inline int makeAddition(struct Task* task);
+
+/**
+ * @brief Выполнить вычитание
+ * 
+ * @param task - Задача struct Task* 
+ * @return int - {-1} - Ошибка переполнения; {-2} - Общая ошибка; {1} - Успешно расчитано
+ */
 inline int makeSubtraction(struct Task* task);
+
+/**
+ * @brief Выполнить умножение
+ * 
+ * @param task - Задача struct Task* 
+ * @return int - {-1} - Ошибка переполнения; {-2} - Общая ошибка; {1} - Успешно расчитано
+ */
 inline int makeMultiplication(struct Task* task);
+
+/**
+ * @brief Выполнить деление
+ * 
+ * @param task - Задача struct Task* 
+ * @return int - {-1} - Ошибка переполнения; {-2} - Общая ошибка; {1} - Успешно расчитано
+ */
 inline int makeDivision(struct Task* task);
+
+/**
+ * @brief Выполнить расчёт факториала
+ * 
+ * @param task - Задача struct Task* 
+ * @return int - {-1} - Ошибка переполнения; {-2} - Общая ошибка; {1} - Успешно расчитано
+ */
 inline int makeFactorial(struct Task* task);
+
+/**
+ * @brief Выполнить возведение в степень
+ * 
+ * @param task - Задача struct Task* 
+ * @return int - {-1} - Ошибка переполнения; {-2} - Общая ошибка; {1} - Успешно расчитано
+ */
 inline int makePower(struct Task* task);
 
 inline MathDefault_t toFactorial(MathDefault_t value, MathDefault_t accumulator,
