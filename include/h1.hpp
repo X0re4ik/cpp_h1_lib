@@ -7,19 +7,19 @@
 
 namespace h1
 {
-inline void makeAddition(struct Task* task);
-inline void makeSubtraction(struct Task* task);
-inline void makeMultiplication(struct Task* task);
-inline void makeDivision(struct Task* task);
-inline void makeFactorial(struct Task* task);
-inline void makePower(struct Task* task);
+inline int makeAddition(struct Task* task);
+inline int makeSubtraction(struct Task* task);
+inline int makeMultiplication(struct Task* task);
+inline int makeDivision(struct Task* task);
+inline int makeFactorial(struct Task* task);
+inline int makePower(struct Task* task);
 
 inline MathDefault_t toFactorial(MathDefault_t value, MathDefault_t accumulator,
                                  int& isOverflow);
 
 } // namespace h1
 
-void h1::makeAddition(struct Task* task)
+int h1::makeAddition(struct Task* task)
 {
 
     MathDefault_t result = 0;
@@ -29,13 +29,14 @@ void h1::makeAddition(struct Task* task)
     {
         setError(task, "При сложении произошло переполнение базового типа",
                  OperationStatus::ERROR_OVERFLOW);
-        return;
+        return -1;
     }
 
     setOk(task, result);
+    return 1;
 }
 
-void h1::makeSubtraction(struct Task* task)
+int h1::makeSubtraction(struct Task* task)
 {
     MathDefault_t result = 0;
 
@@ -44,13 +45,14 @@ void h1::makeSubtraction(struct Task* task)
     {
         setError(task, "При вычитании произошло переполнение базового типа",
                  OperationStatus::ERROR_OVERFLOW);
-        return;
+        return -1;
     }
 
     setOk(task, result);
+    return 1;
 }
 
-void h1::makeMultiplication(struct Task* task)
+int h1::makeMultiplication(struct Task* task)
 {
     MathDefault_t result = 0;
     // Проверка на переполнение
@@ -58,30 +60,32 @@ void h1::makeMultiplication(struct Task* task)
     {
         setError(task, "При умножении произошло переполнение базового типа",
                  OperationStatus::ERROR_OVERFLOW);
-        return;
+        return -1;
     }
 
     setOk(task, result);
+    return 1;
 }
 
-void h1::makeDivision(struct Task* task)
+int h1::makeDivision(struct Task* task)
 {
     if (task->right == 0)
     {
         setError(task, "Запрещено производить деление на 0");
-        return;
+        return -2;
     }
     //Проверка на переполнение
     if (task->left == INT_MIN && task->right == -1)
     {
         setError(task, "При делении произошло переполнение базового типа",
                  OperationStatus::ERROR_OVERFLOW);
-        return;
+        return -1;
     }
 
     auto result = static_cast<MathResultDefault_t>(task->left) /
                   static_cast<MathResultDefault_t>(task->right);
     setOk(task, result);
+    return 1;
 }
 
 // NOLINTNEXTLINE (misc-no-recursion)
@@ -103,12 +107,12 @@ inline MathDefault_t h1::toFactorial(MathDefault_t value,
     return h1::toFactorial(value - 1, temp, isOverflow);
 }
 
-void h1::makeFactorial(struct Task* task)
+int h1::makeFactorial(struct Task* task)
 {
     if (task->left < 0)
     {
         setError(task, "Факториал не определен для отрицательных чисел");
-        return;
+        return -2;
     }
 
     auto value = static_cast<int>(task->left);
@@ -120,17 +124,18 @@ void h1::makeFactorial(struct Task* task)
         setError(task,
                  "При расчёте факториала произошло переполнение базового типа",
                  OperationStatus::ERROR_OVERFLOW);
-        return;
+        return -1;
     }
     setOk(task, result);
+    return 1;
 }
 
-void h1::makePower(struct Task* task)
+int h1::makePower(struct Task* task)
 {
     if (task->right < 0)
     {
         setError(task, "Возведение в отрицательную степень не поддерживается");
-        return;
+        return -2;
     }
 
     auto exp = static_cast<int>(task->right);
@@ -145,12 +150,13 @@ void h1::makePower(struct Task* task)
                 task,
                 "При возведении в степень произошло переполнение базового типа",
                 OperationStatus::ERROR_OVERFLOW);
-            return;
+            return -1;
         }
         result = temp;
     }
 
     setOk(task, result);
+    return 1;
 }
 
 #endif // H_H1
